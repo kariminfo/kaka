@@ -1,0 +1,554 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }} {{ $json.content.parts[0].text }}",
+        "options": {
+          "systemMessage": "=### Persona & Mission ###\nYou are a helpful assistant with memory and knowledge capabilities. Your primary goal is to provide accurate information about products and effective solutions for support issues by using the specific tools provided.\n\n### Context Awareness ###\nThe current date and time is: {{ $now }}\n\n### Tools ###\n\n**1. Tool Name: `Product_Info` (Google Sheets)**\n* **Capability:** Allows you to read any content from the \"Product Info\" Google Sheet. This sheet contains all product information and links.\n* **Instruction:** You MUST use this tool whenever a user asks questions about any product or a related topic.\n* **Process:** When asked about a product, you are to check the \"Product Description\" column to find the relevant information.\n\n**2. Tool Name: `Support_Issue` (Google Sheets)**\n* **Capability:** Allows you to read any content from the \"Support Issue\" Google Sheet.\n* **Instruction:** You MUST use this tool whenever a user reports a support issue, a problem, or asks a question related to a product problem.\n* **Process:** When a user has a problem, you must check the \"Support Problem\" and \"Category\" columns in the sheet. Then, find the corresponding answer in the \"Solution\" column to provide the correct resolution.\n\n### Core Rules ###\n* **Grounded Responses:** You MUST always base your answers on the information retrieved from the Google Sheets tools. NEVER answer from your own knowledge or creativity.\n* **Stealth Operation:** You must NEVER tell the user that you are using Google Sheets to retrieve the data. Act as if you know the information directly.\n\nMemory Handling (Supabase - \"Store_Memory\")\nYou have access to Supabase tools for memory storage and retrieval.\n\nCall the \"Get_Memory\" tool to retrieve past interactions before responding.\n\nEvery response must use previous memory to guide the user towards a decision.\n\n#Rule: You must ALWAYS use the \"Store_Memory\" tool before every response save any new insight you learned about the user.\nWhat to store in memory?\n\nWhat the user is looking for.\nTheir problems, objections, and challenges.\nWhat products they are interested in.\nKey insights about their needs.\nRule: Before generating any response, always retrieve relevant memories from Supabase (\"Get_Memory\") and update them when new information is learned.\n\nIf your prompt input is a description of an image then you need to respond accordingly. Becasue users also have the ability to upload images, of errors, poroduct issues or anything related to the products in your database."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        -96
+      ],
+      "id": "976dae62-8407-427b-a39f-73604453445a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a505d4fd-6039-4207-8dfe-2d6bc49c934a",
+              "name": "messages[0].text.body",
+              "value": "={{ $json.messages[0].text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -864,
+        -80
+      ],
+      "id": "e94ce350-1fe4-43a9-adc7-ae9359a126f3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.messages[0].id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1088,
+        128
+      ],
+      "id": "05282ace-08bd-4a00-8bf7-424faf208c27",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1648,
+        -96
+      ],
+      "id": "7f86028e-6e96-437b-adc7-19ccf329a087",
+      "name": "WhatsApp Trigger",
+      "webhookId": "ab3a198b-e1a0-4f1b-8cba-0379a55b5ea4",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "T7ApD2BoNZSGgCs9",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "733720876499204",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -112
+      ],
+      "id": "1626fd02-4462-4e48-a748-5dedcde7a091",
+      "name": "Send message",
+      "webhookId": "dce81394-f5a3-4f39-8e18-c446e3fa86c1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "RK6wLOaWbMuo1UrT",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs",
+          "mode": "list",
+          "cachedResultName": "COOL",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1679382727,
+          "mode": "list",
+          "cachedResultName": "Support_Issue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs/edit#gid=1679382727"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -608,
+        128
+      ],
+      "id": "f73fc040-3cf0-429e-a8c1-f71a78189b3b",
+      "name": "SUPPORT",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZrccrBXHpElMnzKn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs",
+          "mode": "list",
+          "cachedResultName": "COOL",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Product_Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FajiU1zbkqbUFrparzxWZIX3WTAXtiBvdxG5GghlxRs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -960,
+        128
+      ],
+      "id": "b76aebdc-70b2-40e5-a9a5-b9e0ce365c25",
+      "name": "PRODUCT INFO",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZrccrBXHpElMnzKn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "AGENT1",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "SESSIONID",
+              "fieldValue": "={{ $('WhatsApp Trigger').item.json.messages[0].id }}"
+            },
+            {
+              "fieldId": "MEMORY",
+              "fieldValue": "={{ $fromAI(\"memory\",\"store new memory based on the user's input and be as specific as you can\") }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        144
+      ],
+      "id": "7258b670-fcda-4b06-acc1-eb2a47458836",
+      "name": "store_memory",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ukffZwsn8Yh0HzHW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "AGENT1",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        128
+      ],
+      "id": "a5e7054b-a52c-4844-9fdc-6025f5666519",
+      "name": "get_memory",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ukffZwsn8Yh0HzHW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7efddae6-44f5-4857-bf7b-0e796efa4680",
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "voice message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f4c1fd7f-2e39-4eca-9838-0e5646ec3365"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1296,
+        -96
+      ],
+      "id": "f8137821-73ff-4c9f-b33d-8af9249d9211",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        -320
+      ],
+      "id": "5282915d-4d79-4a64-bde9-85178b38fbe1",
+      "name": "Download media",
+      "webhookId": "efd27611-48f0-42d3-8f90-19cd06fadc8b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "RK6wLOaWbMuo1UrT",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "AUTHORIZATION",
+              "value": "bearer EAAbfEQdV1iIBPaNr4ZBmwUy811FPrrfnP45QdM07lGSXM8XuVxUJkoMQtDcSVX88rS10oZCktgTGkkmGfB4e5x4Lp10pVAQi3BmXJQZAEE4VoPlLLirE8ZCJeqeDYRZBZBWh1ifduS8ZCm1pwWZB2pCn8A3eQine3ZA1jigrrvuUS06DXyz4YxYHctVdGZBcNAZBxeUGGsU6usyUtIbUkHcJAeC2ASZBqKOrWyzjjN2T3CZBMgp8ZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -976,
+        -336
+      ],
+      "id": "d2556a75-ea7d-44ed-a0ba-ddf82eee3724",
+      "name": "HTTP Request",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "RK6wLOaWbMuo1UrT",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-1.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-1.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        -336
+      ],
+      "id": "35324483-150f-4431-83f1-124302714c6e",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7ymoHjEs8e8WpIzo",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        128
+      ],
+      "id": "d1ff88b8-d4b0-4081-830d-8cdf00dcf052",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7ymoHjEs8e8WpIzo",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUPPORT": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PRODUCT INFO": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "store_memory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_memory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7a3d2c14-5056-4125-a4d4-2119a354e2d4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "54ba63b56e5a21a8d5c766e48a39c79540bc30883bd5e3bec33447018a67ec81"
+  },
+  "id": "U4vguRA5fBYpoZpH",
+  "tags": []
+}
